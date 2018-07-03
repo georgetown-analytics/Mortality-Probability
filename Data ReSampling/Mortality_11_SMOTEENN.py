@@ -10,13 +10,13 @@ from sklearn.metrics import confusion_matrix
 
 # Importing the dataset
 dataset = pd.read_csv('11_Updated_Data.csv')
-X = dataset.iloc[:, 3:].values
-y = dataset.iloc[:, 1].values
+X = dataset.drop(['Record','IndDea','Age','Age_Cat35','HispOr','Educ_CollgCompl','NotInPoverty','Res_Pacific'], axis=1)
+y = dataset.loc[:, 'IndDea']
 
 # Fixing class imbalance by applying SMOTEENN algorithm
 X, y = make_classification(n_classes=2, class_sep=2,
-weights=[0.1, 0.9], n_informative=37, n_redundant=0, flip_y=0,
-n_features=37, n_clusters_per_class=1, n_samples=1261033, random_state=10)
+weights=[0.1, 0.9], n_informative=32, n_redundant=0, flip_y=0,
+n_features=32, n_clusters_per_class=1, n_samples=1008826, random_state=10)
 
 sme = SMOTEENN(random_state=42)
 X_res, y_res = sme.fit_sample(X, y)
@@ -25,7 +25,8 @@ X_res, y_res = sme.fit_sample(X, y)
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X_res, y_res, test_size = 0.2, random_state = 0)
 
-# Identify statistically significant variables 
+# Identify statistically significant variables
+import statsmodels.formula.api as sm
 regressor_OLS = sm.OLS(endog = y_train, exog = X_train).fit()
 regressor_OLS.summary()
 
@@ -86,3 +87,14 @@ def plot_confusion(cm):
 plot_confusion(cm)
 
 print(cm.astype(np.float64) / cm.sum(axis=1))
+
+# Calculating Sensitivity, Specificity and Support: we are interested in Sensitivity (ratio TP / (TP + FN). The specificity quantifies the ability to avoid false negatives).
+from imblearn.metrics import sensitivity_specificity_support
+sensitivity_specificity_support(y_test, y_pred, average='weighted')
+
+# Calculating Recall Score (The recall is the ratio TP / (TP + FN) where TP is the number of true positives and FN the number of false negatives. The recall is intuitively the ability of the classifier to find all the positive samples)
+from sklearn.metrics import recall_score
+print(recall_score(y_test, y_pred))
+
+from sklearn.metrics import precision_score
+print(precision_score(y_test, y_pred))
