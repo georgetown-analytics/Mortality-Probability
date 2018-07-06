@@ -1,11 +1,13 @@
 # Importing the libraries
+import plotly
 %matplotlib inline
 import numpy as np
 import pandas as pd
-from collections import Counter 
+from ipywidgets import widgets
 import matplotlib.pyplot as plt
 from collections import Counter
 from sklearn.metrics import auc
+from IPython.html.widgets import *
 import statsmodels.formula.api as sm
 from sklearn.metrics import roc_curve
 from sklearn.decomposition import PCA
@@ -62,7 +64,7 @@ def plot_confusion(cm):
     plt.tight_layout()    
 plot_confusion(cm)
 print(cm.astype(np.float64) / cm.sum(axis=1, keepdims=1))
-sensitivity_specificity_support(y_test, y_pred, average='weighted') #Sensitivity (ratio TP / (TP + FN) - quantifies the ability to avoid false negatives)
+print(sensitivity_specificity_support(y_test, y_pred, average='weighted')) #Sensitivity (ratio TP / (TP + FN) - quantifies the ability to avoid false negatives)
 print(recall_score(y_test, y_pred)) #The recall is intuitively the ability of the classifier to find all the positive samples
 
 # Random Forest Classifier
@@ -86,7 +88,7 @@ def plot_confusion(cm):
     plt.tight_layout()    
 plot_confusion(cm)
 print(cm.astype(np.float64) / cm.sum(axis=1, keepdims=1))
-sensitivity_specificity_support(y_test, y_pred_rf, average='weighted')
+print(sensitivity_specificity_support(y_test, y_pred_rf, average='weighted'))
 print(recall_score(y_test, y_pred_rf))
 
 # Pipeline
@@ -113,7 +115,7 @@ def plot_confusion(cm):
     plt.tight_layout()    
 plot_confusion(cm)
 print(cm.astype(np.float64) / cm.sum(axis=1, keepdims=1))
-sensitivity_specificity_support(y_test, y_pred_ppl, average='weighted')
+print(sensitivity_specificity_support(y_test, y_pred_ppl, average='weighted'))
 print(recall_score(y_test, y_pred_ppl))
 
 # Principal Component Analysis (PCA) + Logistic Regression ----- DOES NOT RECOGNIZE Class IndDea=1
@@ -154,7 +156,7 @@ def plot_confusion(cm):
     plt.tight_layout()    
 plot_confusion(cm)
 print(cm.astype(np.float64) / cm.sum(axis=1, keepdims=1))
-sensitivity_specificity_support(y_test, y_pred_smt, average='weighted')
+print(sensitivity_specificity_support(y_test, y_pred_smt, average='weighted'))
 print(recall_score(y_test, y_pred_smt))
 
 # SMOTETomek (Over + Under Sampling) + Logistic Regression
@@ -182,7 +184,7 @@ def plot_confusion(cm):
     plt.tight_layout()    
 plot_confusion(cm)
 print(cm.astype(np.float64) / cm.sum(axis=1, keepdims=1))
-sensitivity_specificity_support(y_test, y_pred_smt, average='weighted')
+print(sensitivity_specificity_support(y_test, y_pred_smt, average='weighted'))
 print(recall_score(y_test, y_pred_smt))
 y_pred_smt_proba = logreg.predict_proba(X_test)
 y_pred_smt_proba[:5]
@@ -227,7 +229,7 @@ def plot_confusion(cm):
     plt.tight_layout()    
 plot_confusion(cm)
 print(cm.astype(np.float64) / cm.sum(axis=1, keepdims=1))
-sensitivity_specificity_support(y_test, y_pred_sme, average='weighted')
+print(sensitivity_specificity_support(y_test, y_pred_sme, average='weighted'))
 print(recall_score(y_test, y_pred_sme))
 y_pred_sme_proba = logreg.predict_proba(X_test)
 y_pred_sme_proba[:5]
@@ -242,5 +244,4 @@ def plot_roc_curve(y_test, y_pred_sme_proba):
     plt.ylabel('True Positive Rate or (Sensitivity)')
     plt.title('Receiver Operating Characteristic')
     plt.legend(loc="lower right")
-    plot_roc_curve(y_test, y_pred_sme_proba)
-
+plot_roc_curve(y_test, y_pred_sme_proba)
