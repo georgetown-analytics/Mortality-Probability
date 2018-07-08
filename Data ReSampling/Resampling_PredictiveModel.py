@@ -7,7 +7,6 @@ from ipywidgets import widgets
 import matplotlib.pyplot as plt
 from collections import Counter
 from sklearn.metrics import auc
-from IPython.html.widgets import *
 import statsmodels.formula.api as sm
 from sklearn.metrics import roc_curve
 from sklearn.decomposition import PCA
@@ -26,7 +25,7 @@ from sklearn.model_selection import train_test_split as tts
 from imblearn.metrics import sensitivity_specificity_support
 
 # Importing the dataset
-dataset = pd.read_csv('6c_Updated_Data.csv')
+dataset = pd.read_csv('11_Updated_Data.csv')
 X = dataset.drop(['Record','IndDea','Age','Age_Cat35','HispOr','Educ_CollgCompl','NotInPoverty','Res_Pacific'], axis=1)
 y = dataset.loc[:, 'IndDea']
 IndDea = dataset.IndDea.value_counts()
@@ -44,7 +43,7 @@ regressor_OLS = sm.OLS(endog = y_train, exog = X_train).fit()
 regressor_OLS.summary()
 
 #Logistic Regression
-logreg = LogisticRegression(C=1)
+logreg = LogisticRegression(C=1, class_weight='balanced')
 logreg.fit(X_train, y_train)
 y_pred = logreg.predict(X_test)
 accuracy_score(y_test, y_pred)
@@ -55,7 +54,7 @@ def plot_confusion(cm):
     plt.title('Confusion matrix')
     plt.set_cmap('Reds')
     plt.colorbar()
-    target_names = ['survived', 'died']
+    target_names = ['Alive', 'Deceased']
     tick_marks = np.arange(len(target_names))
     plt.xticks(tick_marks, target_names, rotation=60)
     plt.yticks(tick_marks, target_names)
@@ -68,7 +67,7 @@ print(sensitivity_specificity_support(y_test, y_pred, average='weighted')) #Sens
 print(recall_score(y_test, y_pred)) #The recall is intuitively the ability of the classifier to find all the positive samples
 
 # Random Forest Classifier
-clf_rf = RandomForestClassifier(n_estimators=25, random_state=12)
+clf_rf = RandomForestClassifier(n_estimators=25, random_state=12, class_weight='balanced')
 clf_rf.fit(X_train, y_train)
 y_pred_rf = clf_rf.predict(X_test)
 accuracy_score(y_test, y_pred_rf)
@@ -79,7 +78,7 @@ def plot_confusion(cm):
     plt.title('Confusion matrix')
     plt.set_cmap('Reds')
     plt.colorbar()
-    target_names = ['survived', 'died']
+    target_names = ['Alive', 'Deceased']
     tick_marks = np.arange(len(target_names))
     plt.xticks(tick_marks, target_names, rotation=60)
     plt.yticks(tick_marks, target_names)
@@ -106,7 +105,7 @@ def plot_confusion(cm):
     plt.title('Confusion matrix')
     plt.set_cmap('Reds')
     plt.colorbar()
-    target_names = ['survived', 'died']
+    target_names = ['Alive', 'Deceased']
     tick_marks = np.arange(len(target_names))
     plt.xticks(tick_marks, target_names, rotation=60)
     plt.yticks(tick_marks, target_names)
@@ -118,12 +117,12 @@ print(cm.astype(np.float64) / cm.sum(axis=1, keepdims=1))
 print(sensitivity_specificity_support(y_test, y_pred_ppl, average='weighted'))
 print(recall_score(y_test, y_pred_ppl))
 
-# Principal Component Analysis (PCA) + Logistic Regression ----- DOES NOT RECOGNIZE Class IndDea=1
+# Principal Component Analysis (PCA) + Logistic Regression
 pca = PCA(n_components=2)
 pca.fit(X_train)
 X_train_pca = pca.transform(X_train)
 X_test_pca = pca.transform(X_test)
-logisticRegr = LogisticRegression(solver = 'lbfgs')
+logisticRegr = LogisticRegression(solver = 'lbfgs', class_weight='balanced')
 logisticRegr.fit(X_train_pca, y_train)
 y_pred_pca = logisticRegr.predict(X_test_pca)
 def plot_2d_space(X_test_pca, y_pred_pca, label='Classes'):   
@@ -147,7 +146,7 @@ def plot_confusion(cm):
     plt.title('Confusion matrix')
     plt.set_cmap('Reds')
     plt.colorbar()
-    target_names = ['survived', 'died']
+    target_names = ['Alive', 'Deceased']
     tick_marks = np.arange(len(target_names))
     plt.xticks(tick_marks, target_names, rotation=60)
     plt.yticks(tick_marks, target_names)
@@ -156,8 +155,8 @@ def plot_confusion(cm):
     plt.tight_layout()    
 plot_confusion(cm)
 print(cm.astype(np.float64) / cm.sum(axis=1, keepdims=1))
-print(sensitivity_specificity_support(y_test, y_pred_smt, average='weighted'))
-print(recall_score(y_test, y_pred_smt))
+print(sensitivity_specificity_support(y_test, y_pred_pca, average='weighted'))
+print(recall_score(y_test, y_pred_pca))
 
 # SMOTETomek (Over + Under Sampling) + Logistic Regression
 print('Original dataset shape {}'.format(Counter(y_train)))
@@ -175,7 +174,7 @@ def plot_confusion(cm):
     plt.title('Confusion matrix')
     plt.set_cmap('Reds')
     plt.colorbar()
-    target_names = ['survived', 'died']
+    target_names = ['Alive', 'Deceased']
     tick_marks = np.arange(len(target_names))
     plt.xticks(tick_marks, target_names, rotation=60)
     plt.yticks(tick_marks, target_names)
@@ -201,6 +200,34 @@ def plot_roc_curve(y_test, y_pred_smt_proba):
     plt.legend(loc="lower right")
 plot_roc_curve(y_test, y_pred_smt_proba)
 
+# SMOTETomek (Over + Under Sampling) + Random Forest Classifier
+print('Original dataset shape {}'.format(Counter(y_train)))
+smt = SMOTETomek(ratio='auto')
+X_train_smt, y_train_smt = smt.fit_sample(X_train, y_train)
+print('Resampled dataset shape {}'.format(Counter(y_train_smt)))
+clf_rf = RandomForestClassifier(n_estimators=25, random_state=12)
+clf_rf.fit(X_train_smt, y_train_smt)
+y_pred_smt_rf = clf_rf.predict(X_test)
+accuracy_score(y_test, y_pred_smt_rf)
+cm = confusion_matrix(y_test, y_pred_smt_rf)
+print(cm)
+def plot_confusion(cm):
+    plt.imshow(cm, interpolation='nearest', cmap=plt.cm.binary)
+    plt.title('Confusion matrix')
+    plt.set_cmap('Reds')
+    plt.colorbar()
+    target_names = ['Alive', 'Deceased']
+    tick_marks = np.arange(len(target_names))
+    plt.xticks(tick_marks, target_names, rotation=60)
+    plt.yticks(tick_marks, target_names)
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.tight_layout()    
+plot_confusion(cm)
+print(cm.astype(np.float64) / cm.sum(axis=1, keepdims=1))
+print(sensitivity_specificity_support(y_test, y_pred_smt_rf, average='weighted'))
+print(recall_score(y_test, y_pred_smt_rf))
+
 # SMOTEENN algorithm + Logistic Regression
 sme = SMOTEENN(random_state=42)
 X_train_sme, y_train_sme = sme.fit_sample(X_train, y_train)
@@ -211,16 +238,16 @@ df_y = pd.DataFrame(y_train_sme)
 df_y.to_csv("6c_ResampledData_y_train.csv", encoding='utf-8', index=False)
 logreg = LogisticRegression(C=1)
 logreg.fit(X_train_sme, y_train_sme)
-y_pred_sme = logreg.predict(X_test)
-accuracy_score(y_test, y_pred_sme)
-cm = confusion_matrix(y_test, y_pred_sme)
+y_pred_sme = logreg.predict(X)
+accuracy_score(y, y_pred_sme)
+cm = confusion_matrix(y, y_pred_sme)
 print(cm)
 def plot_confusion(cm):
     plt.imshow(cm, interpolation='nearest', cmap=plt.cm.binary)
     plt.title('Confusion matrix')
     plt.set_cmap('Reds')
     plt.colorbar()
-    target_names = ['survived', 'died']
+    target_names = ['Alive', 'Deceased']
     tick_marks = np.arange(len(target_names))
     plt.xticks(tick_marks, target_names, rotation=60)
     plt.yticks(tick_marks, target_names)
@@ -229,12 +256,12 @@ def plot_confusion(cm):
     plt.tight_layout()    
 plot_confusion(cm)
 print(cm.astype(np.float64) / cm.sum(axis=1, keepdims=1))
-print(sensitivity_specificity_support(y_test, y_pred_sme, average='weighted'))
-print(recall_score(y_test, y_pred_sme))
-y_pred_sme_proba = logreg.predict_proba(X_test)
+print(sensitivity_specificity_support(y, y_pred_sme, average='weighted'))
+print(recall_score(y, y_pred_sme))
+y_pred_sme_proba = logreg.predict_proba(X)
 y_pred_sme_proba[:5]
-def plot_roc_curve(y_test, y_pred_sme_proba):
-    fpr, tpr, thresholds = roc_curve(y_test, y_pred_sme_proba[:, 1])
+def plot_roc_curve(y, y_pred_sme_proba):
+    fpr, tpr, thresholds = roc_curve(y, y_pred_sme_proba[:, 1])
     roc_auc = auc(fpr, tpr)
     plt.plot(fpr, tpr, label='ROC curve (area = %0.3f)' % roc_auc)
     plt.plot([0, 1], [0, 1], 'k--')  # random predictions curve
@@ -244,4 +271,4 @@ def plot_roc_curve(y_test, y_pred_sme_proba):
     plt.ylabel('True Positive Rate or (Sensitivity)')
     plt.title('Receiver Operating Characteristic')
     plt.legend(loc="lower right")
-plot_roc_curve(y_test, y_pred_sme_proba)
+plot_roc_curve(y, y_pred_sme_proba)

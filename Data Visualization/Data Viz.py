@@ -12,7 +12,6 @@ import numpy as np
 import pandas as pd
 from ipywidgets import widgets
 import matplotlib.pyplot as plt
-from IPython.html.widgets import *
 
 f = open('11.csv','r') 
 
@@ -41,9 +40,34 @@ for tbl in cur.execute('UPDATE NLMS_11 SET Year = 1990'):
     print(tbl)
 for selected in cur.execute('SELECT COUNT(Record) FROM NLMS_11 WHERE Year=""'):
     print(selected)
+cur.execute("ALTER TABLE NLMS_11 ADD COLUMN 'Age_Cat' TEXT")
+for tbl in cur.execute('UPDATE NLMS_11 SET Age_Cat = CASE WHEN Age<22 THEN "<22" WHEN Age BETWEEN 22 AND 35 THEN "22-35" WHEN Age BETWEEN 36 AND 45 THEN "36-45" WHEN Age BETWEEN 46 AND 55 THEN "46-55" WHEN Age BETWEEN 56 AND 65 THEN "56-65" WHEN Age BETWEEN 66 AND 75 THEN "66-75" WHEN Age BETWEEN 76 AND 85 THEN "76-85" WHEN Age > 85 THEN ">85" ELSE "" END'):
+    print(tbl)
+for tbl in cur.execute('UPDATE NLMS_11 SET SEX = CASE WHEN SEX = 1 THEN "M" WHEN SEX = 2 THEN "F" ELSE "" END'):
+    print(tbl)
+for check in cur.execute('SELECT COUNT(*) FROM NLMS_11 WHERE SEX IN (1,2)'):
+    print(check)
+for tbl in cur.execute('UPDATE NLMS_11 SET RACE = CASE WHEN RACE = 1 THEN "W" WHEN RACE = 2 THEN "B" WHEN RACE = 3 THEN "AmIn" WHEN RACE = 4 THEN "As/PI" WHEN RACE = 5 THEN "OthNnWh" ELSE "" END'):
+    print(tbl)
+for check in cur.execute('SELECT COUNT(*) FROM NLMS_11 WHERE RACE IN (1,2,3,4,5)'):
+    print(check)
+for tbl in cur.execute('UPDATE NLMS_11 SET MARSTAT = CASE WHEN MARSTAT = 1 THEN "M" WHEN MARSTAT IN (2,3,4,5) THEN "NM" ELSE "" END'):
+    print(tbl)
+for check in cur.execute('SELECT COUNT(*) FROM NLMS_11 WHERE MARSTAT IN (1,2,3,4,5)'):
+    print(check)
+for tbl in cur.execute('UPDATE NLMS_11 SET StateR = CASE WHEN MARSTAT = 1 THEN "M" WHEN MARSTAT IN (2,3,4,5) THEN "NM" ELSE "" END'):
+    print(tbl)
+for check in cur.execute('SELECT COUNT(*) FROM NLMS_11 WHERE MARSTAT IN (1,2,3,4,5)'):
+    print(check)
+    
+    
+    
+    
+    
+    
     
 # Exporting wrangled data to a new CSV file
-data = cur.execute("SELECT * FROM NLMS_6b_New")
+data = cur.execute("SELECT * FROM NLMS_11_New")
 
 with open('11_Viz_Data.csv', 'w') as f:
     writer = csv.writer(f)
@@ -58,3 +82,4 @@ with open('11_Viz_Data.csv', 'w') as f:
 
 
 
+sql.close()
