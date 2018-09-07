@@ -1,0 +1,13 @@
+# Mortality-Probability
+Cohort 12 Capstone Project for the Certificate of Data Science at Georgetown University School of Continuing Studies.
+
+The contents of this folder include:
+1. Data folder with 1 CSV file containing data on 11-year follow-up.
+2. flask_APP folder containing App.py main application file, pickled logistic regression model on which the application runs, HTML, CSS and other accompanying files required for application deployment to Heroku platform.
+   Running App.py file will launch an application in Chrome browser on your local machine.
+3. Mortality-Probability.ipynb Jupyter Notebook file, containing code for the entire project pipeline, starting from data ingestion, exploratory analysis, data wrangling, predictive modeling and model selection.
+4. Capstone brief PowerPoint presentation.
+5. Final Report document providing description of the methodology, strategy and steps taken to complete the project.
+6. REQUIREMENTS file listing all the packages required to be installed in order to successfully run the code.
+7. LICENSE file for using materials included in this folder by third parties.
+
